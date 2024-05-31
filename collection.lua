@@ -9,7 +9,7 @@ if Thumbnail ~= '<THUMBNAIL>' then Thumbnail = '<THUMBNAIL>' end
 if DateCreated ~= '<DATECREATED>' then DateCreated = '<DATECREATED>' end
 if LastUpdate ~= '<LASTUPDATE>' then LastUpdate = '<LASTUPDATE>' end
 
--- Assets: { Id }[]
+-- Assets: Id[]
 if not Assets then Assets = {} end
 
 local function decodeMessageData(data)
@@ -23,8 +23,8 @@ local function decodeMessageData(data)
 end
 
 local function assetExists(assetId)
-	for _, asset in ipairs(Assets) do
-		if asset.Id == assetId then
+	for _, id in ipairs(Assets) do
+		if id == assetId then
 			return true
 		end
 	end
@@ -75,7 +75,7 @@ Handlers.add('Update-Assets', Handlers.utils.hasMatchingTag('Action', 'Update-As
 			return
 		end
 
-		if not data.UpdateType or data.UpdateType ~= 'Add' or data.UpdateType ~= 'Remove' then
+		if not data.UpdateType or (data.UpdateType ~= 'Add' and data.UpdateType ~= 'Remove') then
 			ao.send({
 				Target = msg.From,
 				Action = 'Action-Response',
@@ -90,15 +90,15 @@ Handlers.add('Update-Assets', Handlers.utils.hasMatchingTag('Action', 'Update-As
 		if data.UpdateType == 'Add' then
 			for _, assetId in ipairs(data.AssetIds) do
 				if not assetExists(assetId) then
-					table.insert(Assets, { Id = assetId })
+					table.insert(Assets, assetId)
 				end
 			end
 		end
 
 		if data.UpdateType == 'Remove' then
 			for _, assetId in ipairs(data.AssetIds) do
-				for i, asset in ipairs(Assets) do
-					if asset.Id == assetId then
+				for i, id in ipairs(Assets) do
+					if id == assetId then
 						table.remove(Assets, i)
 						break
 					end

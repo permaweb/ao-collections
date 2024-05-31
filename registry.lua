@@ -78,6 +78,19 @@ Handlers.add('Add-Collection', Handlers.utils.hasMatchingTag('Action', 'Add-Coll
 end)
 
 -- Get collections by user
+Handlers.add('Get-Collections', Handlers.utils.hasMatchingTag('Action', 'Get-Collections'), function(msg)
+	ao.send({
+		Target = msg.From,
+		Action = 'Action-Response',
+		Tags = {
+			Status = 'Success',
+			Message = 'Collections fetched successfully'
+		},
+		Data = json.encode({ Collections = Collections })
+	})
+end)
+
+-- Get collections by user
 Handlers.add('Get-Collections-By-User', Handlers.utils.hasMatchingTag('Action', 'Get-Collections-By-User'), function(msg)
 	local creator = msg.Tags.Creator
 
@@ -94,17 +107,27 @@ Handlers.add('Get-Collections-By-User', Handlers.utils.hasMatchingTag('Action', 
 	end
 
 	local collectionIds = CollectionsByUser[creator] or {}
+	local userCollections = {}
+
+	for _, collectionId in ipairs(collectionIds) do
+		for _, collection in ipairs(Collections) do
+			if collection.Id == collectionId then
+				table.insert(userCollections, collection)
+				break
+			end
+		end
+	end
 
 	ao.send({
 		Target = msg.From,
 		Action = 'Action-Response',
-		Data = json.encode({
-			Creator = creator,
-			CollectionIds = collectionIds
-		}),
 		Tags = {
 			Status = 'Success',
 			Message = 'Collections fetched successfully'
-		}
+		},
+		Data = json.encode({
+			Creator = creator,
+			Collections = userCollections
+		})
 	})
 end)
