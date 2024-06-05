@@ -141,7 +141,15 @@ end)
 -- Initialize a request to add the uploaded asset to a profile
 Handlers.add('Add-Collection-To-Profile', Handlers.utils.hasMatchingTag('Action', 'Add-Collection-To-Profile'), function(msg)
 	if checkValidAddress(msg.Tags.ProfileProcess) then
-    	ao.assign({Processes = {msg.Tags.ProfileProcess}, Message = ao.id})
+    	-- ao.assign({Processes = {msg.Tags.ProfileProcess}, Message = ao.id})
+		ao.send({
+			Target = msg.Tags.ProfileProcess,
+			Action = 'Add-Collection',
+			Data = json.encode({
+				Id = ao.id,
+				Name = Name
+			})
+		})
     else
     	ao.send({
     		Target = msg.From,
