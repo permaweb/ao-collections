@@ -31,6 +31,14 @@ local function assetExists(assetId)
 	return false
 end
 
+local function checkValidAddress(address)
+	if not address or type(address) ~= 'string' then
+		return false
+	end
+
+	return string.match(address, "^[%w%-_]+$") ~= nil and #address == 43
+end
+
 Handlers.add('Info', Handlers.utils.hasMatchingTag('Action', 'Info'), function(msg)
 	ao.send({
 		Target = msg.From,
@@ -128,4 +136,20 @@ Handlers.add('Update-Assets', Handlers.utils.hasMatchingTag('Action', 'Update-As
 			}
 		})
 	end
+end)
+
+-- Initialize a request to add the uploaded asset to a profile
+Handlers.add('Add-Collection-To-Profile', Handlers.utils.hasMatchingTag('Action', 'Add-Collection-To-Profile'), function(msg)
+	if checkValidAddress(msg.Tags.ProfileProcess) then
+    	ao.assign({Processes = {msg.Tags.ProfileProcess}, Message = ao.id})
+    else
+    	ao.send({
+    		Target = msg.From,
+    		Action = 'Input-Error',
+    		Tags = {
+    			Status = 'Error',
+    			Message = 'ProfileProcess tag not specified or not a valid Process ID'
+    		}
+    	})
+    end
 end)
