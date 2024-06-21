@@ -140,7 +140,7 @@ end)
 
 -- Initialize a request to add the collection to a profile
 Handlers.add('Add-Collection-To-Profile', Handlers.utils.hasMatchingTag('Action', 'Add-Collection-To-Profile'), function(msg)
-	if msg.From ~= Creator and msg.From ~= ao.id then
+	if msg.From ~= Owner and msg.From ~= Creator and msg.From ~= ao.id then
 		ao.send({
 			Target = msg.From,
 			Action = 'Authorization-Error',
